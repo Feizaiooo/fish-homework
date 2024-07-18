@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script type="text/javascript" src="/script.js"></script>
+    <script type="text/javascript" src="./index.js"></script>
+    <title>Lazy-Load</title>
+    <style>
+      .img {
+        width: 200px;
+        height: 200px;
+        background-color: gray;
+      }
+      .pic {
+        // 必要的img样式
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="img">
+        // 注意我们并没有为它引入真实的src
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+      <div class="img">
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+      <div class="img">
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+      <div class="img">
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+      <div class="img">
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+      <div class="img">
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+      <div class="img">
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+      <div class="img">
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+      <div class="img">
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+      <div class="img">
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+      <div class="img">
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+      <div class="img">
+        <img
+          class="pic"
+          alt="加载中"
+          data-src="http://82.156.211.214:94/static/dog128.png"
+        />
+      </div>
+    </div>
+  </body>
+  <script>
+    // 获取所有的图片标签
+    const imgs = document.getElementsByTagName('img');
+    // 获取可视区域的高度
+    const viewHeight =
+      window.innerHeight || document.documentElement.clientHeight;
+    console.log(viewHeight, imgs.length);
+    // num用于统计当前显示到了哪一张图片，避免每次都从第一张图片开始检查是否露出
+    let num = 0;
+    function lazyload() {
+      console.log('——————————', imgs.length);
+      console.log(imgs[0].getBoundingClientRect().top);
+      for (let i = num; i < imgs.length; i++) {
+        // 用可视区域高度减去元素顶部距离可视区域顶部的高度
+        let distance = viewHeight - imgs[i].getBoundingClientRect().top;
+        // 如果可视区域高度大于等于元素顶部距离可视区域顶部的高度，说明元素露出
+        // console.log(i, distance, imgs[i].getBoundingClientRect(), viewHeight);
+        if (distance >= 20) {
+          // 给元素写入真实的src，展示图片
+          imgs[i].alt = imgs[i].getAttribute('data-src');
+          // 前i张图片已经加载完毕，下次从第i+1张开始检查是否露出
+          num = i + 1;
+        }
+      }
+    }
+    // 监听Scroll事件
+    // window.addEventListener('scroll', lazyload, false);
+
+    document.addEventListener('DOMContentLoaded', function () {
+      let lazyImages = [].slice.call(document.querySelectorAll('img.lazyload'));
+
+      if ('IntersectionObserver' in window) {
+        let lazyImageObserver = new IntersectionObserver(function (
+          entries,
+          observer
+        ) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              let lazyImage = entry.target;
+              lazyImage.src = lazyImage.dataset.src;
+              lazyImage.classList.remove('lazyload');
+              lazyImage.classList.add('loaded');
+              lazyImageObserver.unobserve(lazyImage);
+            }
+          });
+        });
+
+        lazyImages.forEach(function (lazyImage) {
+          lazyImageObserver.observe(lazyImage);
+        });
+      } else {
+        // Fallback for browsers that do not support IntersectionObserver
+        let lazyLoadThrottleTimeout;
+        function lazyLoad() {
+          if (lazyLoadThrottleTimeout) {
+            clearTimeout(lazyLoadThrottleTimeout);
+          }
+
+          lazyLoadThrottleTimeout = setTimeout(function () {
+            let scrollTop = window.pageYOffset;
+            lazyImages.forEach(function (lazyImage) {
+              if (lazyImage.offsetTop < window.innerHeight + scrollTop) {
+                lazyImage.src = lazyImage.dataset.src;
+                lazyImage.classList.remove('lazyload');
+                lazyImage.classList.add('loaded');
+              }
+            });
+            if (lazyImages.length == 0) {
+              document.removeEventListener('scroll', lazyLoad);
+              window.removeEventListener('resize', lazyLoad);
+              window.removeEventListener('orientationchange', lazyLoad);
+            }
+          }, 20);
+        }
+
+        document.addEventListener('scroll', lazyLoad);
+        window.addEventListener('resize', lazyLoad);
+        window.addEventListener('orientationchange', lazyLoad);
+      }
+    });
+  </script>
+</html>

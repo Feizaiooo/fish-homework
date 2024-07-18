@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Detect Nested White Boxes</title>
+  </head>
+  <body>
+    <input type="file" id="upload" />
+    <canvas id="canvas"></canvas>
+    <script type="text/javascript" src="/script.js"></script>
+    <script type="text/javascript" src="./index.js"></script>
+    <script
+      async
+      src="https://docs.opencv.org/4.x/opencv.js"
+      type="text/javascript"
+    ></script>
+    <script type="text/javascript">
+      document.getElementById('upload').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            detectNestedWhiteBoxes(img);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      function detectNestedWhiteBoxes(img) {
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        const src = cv.imread(canvas);
+        const gray = new cv.Mat();
+        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+
+        // 使用更低的阈值来检测纯白色区域
+        const thresh = new cv.Mat();
+        cv.threshold(gray, thresh, 245, 255, cv.THRESH_BINARY_INV);
+
+        const contours = new cv.MatVector();
+        const hierarchy = new cv.Mat();
+        cv.findContours(
+          thresh,
+          contours,
+          hierarchy,
+          cv.RETR_TREE,
+          cv.CHAIN_APPROX_SIMPLE
+        );
+
+        const coordinates = [];
+        let sequenceNumber = 0;
+
+        // 遍历所有轮廓，绘制外框和内框
+        for (let i = 0; i < contours.size(); ++i) {
+          const rect = cv.boundingRect(contours.get(i));
+          if (rect.width > 200 && rect.height > 50) {
+            sequenceNumber++;
+            coordinates.push({ sequence: sequenceNumber, rect: rect });
+
+            // 画绿框
+            cv.rectangle(
+              src,
+              new cv.Point(rect.x, rect.y),
+              new cv.Point(rect.x + rect.width, rect.y + rect.height),
+              [0, 255, 0, 255],
+              2
+            );
+
+            // 添加序列号
+            cv.putText(
+              src,
+              sequenceNumber.toString(),
+              new cv.Point(rect.x, rect.y - 10),
+              cv.FONT_HERSHEY_SIMPLEX,
+              1,
+              [0, 255, 0, 255],
+              2
+            );
+
+            // 检查是否有内嵌轮廓
+            let childIndex = hierarchy.intPtr(0, i)[2];
+            while (childIndex != -1) {
+              const childRect = cv.boundingRect(contours.get(childIndex));
+              if (childRect.width > 300 && childRect.height > 50) {
+                sequenceNumber++;
+                coordinates.push({ sequence: sequenceNumber, rect: childRect });
+
+                // 画红框
+                cv.rectangle(
+                  src,
+                  new cv.Point(childRect.x, childRect.y),
+                  new cv.Point(
+                    childRect.x + childRect.width,
+                    childRect.y + childRect.height
+                  ),
+                  [255, 0, 0, 255],
+                  2
+                );
+
+                // 添加序列号
+                cv.putText(
+                  src,
+                  sequenceNumber.toString(),
+                  new cv.Point(childRect.x, childRect.y - 10),
+                  cv.FONT_HERSHEY_SIMPLEX,
+                  1,
+                  [255, 0, 0, 255],
+                  2
+                );
+              }
+              childIndex = hierarchy.intPtr(0, childIndex)[0];
+            }
+          }
+        }
+
+        cv.imshow('canvas', src);
+        src.delete();
+        gray.delete();
+        thresh.delete();
+        contours.delete();
+        hierarchy.delete();
+
+        console.log(coordinates);
+      }
+    </script>
+  </body>
+</html>

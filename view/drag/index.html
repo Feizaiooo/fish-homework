@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drag and Drop with Animation</title>
+    <script type="text/javascript" src="/script.js"></script>
+    <script type="text/javascript" src="./script.js"></script>
+    <style>
+      .draggable {
+        width: 100px;
+        height: 50px;
+        background-color: lightblue;
+        margin: 10px;
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+        display: inline-block;
+        transition: transform 0.2s ease;
+      }
+      .dropzone {
+        border: 2px dashed gray;
+        padding: 10px;
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .dropzone.over {
+        border-color: blue;
+      }
+      .dragging {
+        opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dropzone" id="dropzone">
+      <div class="draggable" draggable="true" id="draggable1">Button 1</div>
+      <div class="draggable" draggable="true" id="draggable2">Button 2</div>
+      <div class="draggable" draggable="true" id="draggable3">Button 3</div>
+    </div>
+
+    <script>
+      const draggables = document.querySelectorAll('.draggable');
+      const dropzone = document.getElementById('dropzone');
+
+      draggables.forEach((draggable) => {
+        draggable.addEventListener('dragstart', (event) => {
+          draggable.classList.add('dragging');
+          event.dataTransfer.setData('text/plain', draggable.id);
+        });
+
+        draggable.addEventListener('dragend', () => {
+          draggable.classList.remove('dragging');
+        });
+      });
+
+      dropzone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        const afterElement = getDragAfterElement(dropzone, event.clientX);
+        const dragging = document.querySelector('.dragging');
+        if (afterElement == null) {
+          dropzone.appendChild(dragging);
+        } else {
+          dropzone.insertBefore(dragging, afterElement);
+        }
+      });
+
+      dropzone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        const id = event.dataTransfer.getData('text/plain');
+        const draggable = document.getElementById(id);
+        const afterElement = getDragAfterElement(dropzone, event.clientX);
+        if (afterElement == null) {
+          dropzone.appendChild(draggable);
+        } else {
+          dropzone.insertBefore(draggable, afterElement);
+        }
+      });
+
+      function getDragAfterElement(container, x) {
+        const draggableElements = [
+          ...container.querySelectorAll('.draggable:not(.dragging)'),
+        ];
+        console.log(draggableElements);
+        return draggableElements.reduce(
+          (closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = x - box.left - box.width / 2;
+            if (offset < 0 && offset > closest.offset) {
+              return { offset: offset, element: child };
+            } else {
+              return closest;
+            }
+          },
+          { offset: Number.NEGATIVE_INFINITY }
+        ).element;
+      }
+    </script>
+  </body>
+</html>

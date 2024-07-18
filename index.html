@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Home</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <!--
+      Need a visual blank slate?
+      Remove all code in `styles.css`!
+    -->
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="script.js"></script>
+  </head>
+  <body>
+    <!-- <nav>
+      <a href="/" aria-current="page">Home</a>
+      <a href="/view/drag/index.html">Other page</a>
+    </nav> -->
+    <main>
+      <nav>
+        <ul class="list"></ul>
+      </nav>
+    </main>
+    <script>
+      const list = [
+        {
+          title: 'home',
+          path: '/',
+        },
+        {
+          title: 'drag',
+          path: '/view/drag/index.html',
+        },
+        {
+          title: 'timeout',
+          path: '/view/timeout/index.html',
+        },
+        {
+          title: 'lazy-img',
+          path: '/view/lazy-img/index.html',
+        },
+        {
+          title: 'opencv',
+          path: '/view/opencv/index.html',
+        },
+        {
+          title: 'scheduler',
+          path: '/view/scheduler/index.html',
+        },
+        {
+          title: 'flatter',
+          path: '/view/flatter/index.html',
+        },
+      ];
+
+      const dom = document.querySelector('.list');
+      list.map((item) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.innerText = item.title;
+        a.href = item.path;
+        li.append(a);
+        dom.append(li);
+      });
+    </script>
+  </body>
+</html>
