@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drag and Drop with Animation</title>
+    <script type="text/javascript" src="/script.js"></script>
+    <script type="text/javascript" src="./index.js"></script>
+    <style></style>
+  </head>
+  <body>
+    <button id="decounce">decounce</button>
+    <button id="throttle">throttle</button>
+    <script>
+      document.querySelector('#decounce').addEventListener('click',decounce(()=>{
+        console.log('decounce')
+      },1000))
+      document.querySelector('#throttle').addEventListener('click',throttle(()=>{
+        console.log('throttle')
+      },1000))
+    </script>
+  </body>
+</html>
