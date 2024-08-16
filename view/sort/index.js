@@ -65,7 +65,29 @@ const quickSort = (arr) => {
   }
   return [...quickSort(left),  ...quickSort(right)];
 }
+
+function search(arr, target, start, end) {
+  let targetIndex = -1;
+
+  let mid = Math.floor((start + end) / 2);
+  if (arr[mid] === target) {
+    targetIndex = mid;
+    return targetIndex;
+  }
+  if (start >= end) {
+    return targetIndex;
+  }
+
+  if (arr[mid] < target) {
+    return search(arr, target, mid + 1, end);
+  } else {
+    return search(arr, target, start, mid - 1);
+  }
+}
+const position = search(arr, 84, 0, arr.length - 1);
+
 console.log('bubbleSort',bubbleSort(arr))
 console.log('selectSort',selectSort(arr))
 console.log('insertSort',insertSort(arr))
 console.log('quickSort',quickSort(arr))
+console.log('search',position)

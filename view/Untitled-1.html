@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <script>
+      const version = ['2.10.1', '0.402.1', '10.2.1', '5.1.2', '10.4.5']
+
+      function versionSort(arr) {
+        return arr.sort((a, b) => {
+          let i = 0
+          const arr1 = a.split('.')
+          const arr2 = b.split('.')
+          while (true) {
+            // 取出相同位置的数字
+            const s1 = arr1[i]
+            const s2 = arr2[i]
+            i++
+            // 若s1 或 s2 不存在，说明相同的位置已比较完成，接下来比较arr1 与 arr2的长度，长的版本号大
+            if (s1 === undefined || s2 === undefined) {
+              return arr2.length - arr1.length
+            }
+            if (s1 === s2) continue
+            // 比较相同位置的数字大小
+            return s2 - s1
+          }
+        })
+      }
+
+      function twoSumToTarget() {
+        const target = 7
+        const arr = [8, 2, 6, 5, 4, 1, 3]
+        const resultArr = []
+        for (let i = 0; i < arr.length; i++) {
+          for (let j = i + 1; j < arr.length; j++) {
+            if (arr[i] + arr[j] === 7) {
+              resultArr.push([arr[i], arr[j]])
+            }
+          }
+        }
+        return resultArr
+      }
+      function notRepeate() {
+        const str = 'abcabcde'
+        const resultArr = []
+        const map = {}
+        const arr = str.split('')
+        arr.map(item => {
+          map[item] = map[item] ? map[item] + 1 : 1
+        })
+        for (const key in map) {
+          if (map[key] === 1) {
+            resultArr.push(key)
+          }
+        }
+        console.log(resultArr[0])
+      }
+      console.log(twoSumToTarget())
+      notRepeate()
+
+      function permute(str) {
+        let result = []
+        function stringGroup(current, remaining) {
+          // console.log(current+' ------ '+remaining)
+          if (remaining.length === 0) {
+            result.push(current)
+            return
+          }
+
+          for (let i = 0; i < remaining.length; i++) {
+            let nextCurrent = current + remaining[i]
+            let nextRemaining = remaining.slice(0, i) + remaining.slice(i + 1)
+            // console.log(i, nextCurrent + ' ------ ' + nextRemaining)
+            stringGroup(nextCurrent, nextRemaining)
+          }
+        }
+
+        stringGroup('', str)
+        return result
+      }
+
+      let input = 'abcd'
+      let output = permute(input)
+      console.log(output)
+
+      
+    </script>
+  </body>
+</html>
